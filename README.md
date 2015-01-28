@@ -5,4 +5,4 @@ The whole project is about to change the parameters of a game (Pong) via Biometr
 
 
 
-*too lazy to make a proper Read Me file! :P *
+**too lazy to make a proper Read Me file! :P **

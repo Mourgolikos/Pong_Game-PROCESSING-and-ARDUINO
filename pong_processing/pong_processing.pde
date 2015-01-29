@@ -50,8 +50,8 @@ class Difficulty{
   float ballAcceleration;
   
   Difficulty(){  //Initialization
-    ballColor = color(255,255,255);
-    ballAcceleration = random(1,2)/random(2,3);//Crazy maths for the estimation of the acceleration! Yeah!
+    ballColor = color(255, 255, 255);
+    ballAcceleration = random(1, 2)/random(2, 3);//Crazy maths for the estimation of the acceleration! Yeah!
   }
   
   void Increase(){  // Increase Difficulty level
@@ -73,13 +73,13 @@ void initialiseObjects(){
 /////////////////////////////////////////////////////////  FUNCTIONS FOR  THE  PONG  GAME  ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////  Collision Check Ball-Wall(top or bot)
 boolean hitTopWall(){
-  if (ballY>=height-ballRadious && velocity[1]>=0){
+  if (ballY >= height-ballRadious  &&  velocity[1] >= 0){
     return true;      
   }
   return false;
 }
 boolean hitBotWall(){
-  if (ballY<=ballRadious && velocity[1]<=0){
+  if (ballY <= ballRadious  &&  velocity[1] <= 0){
     return true;      
   }
   return false;
@@ -90,19 +90,31 @@ boolean hitWall(){
 
 ////////////////////////////////////////////////////////  Collision Check Ball-Pad 
 boolean hitLeftPad(){
-  if (ballRadious/2<=ballX && ballX<=ballRadious+padDimensions[0] && mouseY-padDimensions[1]-sqrt(2)/2*ballRadious<=ballY && ballY<=mouseY+padDimensions[1]+sqrt(2)/2*ballRadious && velocity[0]<=0){
-    scorePadHits();
-    return true;
+  if (ballX >= ballRadious/2
+   && ballX <= ballRadious+padDimensions[0]+velocity[0]
+   && ballY >= mouseY-padDimensions[1]-sqrt(2)/2*ballRadious
+   && ballY <= mouseY+padDimensions[1]+sqrt(2)/2*ballRadious
+   && velocity[0]<=0){
+     
+     scorePadHits();
+     return true;
   }
   return false;
 }
+
 boolean hitRightPad(){
-  if (width-padDimensions[0]-ballRadious<=ballX && ballX<=width-ballRadious && mouseY-padDimensions[1]-sqrt(2)/2*ballRadious<=ballY && ballY<=mouseY+padDimensions[1]+sqrt(2)/2*ballRadious && velocity[0]>=0){
-    scorePadHits();
-    return true;
+  if (ballX >= width-padDimensions[0]-ballRadious-velocity[0]
+   && ballX <= width-ballRadious
+   && ballY >= mouseY-padDimensions[1]-sqrt(2)/2*ballRadious
+   && ballY <= mouseY+padDimensions[1]+sqrt(2)/2*ballRadious
+   && velocity[0]>=0){
+    
+      scorePadHits();
+      return true;
   }
   return false;
 }
+
 boolean hitPad(){
   return hitLeftPad() || hitRightPad();
 }
@@ -118,8 +130,8 @@ void ballReset(){
 
 ////////////////////////////////////////////////////////  SCORING 
 void scoring(){
-  if (ballX>width+ballRadious*2 || ballX<-ballRadious*2){
-    score = max(score,hits);
+  if (ballX > width+ballRadious*2 || ballX < -ballRadious*2){
+    score = max(score, hits);
     hits=0;
     ballReset();
   }
@@ -162,7 +174,7 @@ void draw() {
   
   if (mousePressed) {
     ballReset();
-    hits=0;
+    hits = 0;
   }
   
   scoring();

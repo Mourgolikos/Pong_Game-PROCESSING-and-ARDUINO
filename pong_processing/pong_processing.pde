@@ -1,4 +1,5 @@
 import processing.serial.*;
+import java.util.Map;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////  i want to make the code as much portable as i think i can
@@ -11,6 +12,9 @@ int padDimensions[]={33,99}; //[0]=width, [1]=height
 int ballRadious=22;
 int hits=0;
 int score=0;
+int framerate=30;
+
+int heartBeatRate=80;
 
 ////////////////////////////////////////////////////////////  INPUT  FROM  THE  ARDUINO  /////////////////////////////////////////////////////////
 Serial myPort;  // Create object from Serial Class
@@ -50,24 +54,81 @@ class Difficulty{
   float ballAcceleration;
   
   Difficulty(){  //Initialization
-    ballColor = color(255, 255, 255);
-    ballAcceleration = random(1, 2)/random(2, 3);//Crazy maths for the estimation of the acceleration! Yeah!
+    this.ballColor = color(255, 255, 255);
+    this.ballAcceleration = 1/framerate;//Crazy maths for the estimation of the acceleration! Yeah!
   }
   
   void Increase(){  // Increase Difficulty level
+    this.ballAcceleration *= 1.1; //Increase 10%
   }
   void Decrease(){  // Decrease Difficulty level
+    this.ballAcceleration *= 0.9; //Decrease 10%
   }
   
 }
 
-Difficulty currectDifficulty; // Setting the variable that is gonna contain the Difficulty Settings
+Difficulty currentDifficulty; // Setting the variable that is gonna contain the Difficulty Settings
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////  FUNCTIONS  FOR  INITIALISATION  ///////////////////////////////////////////////////////
 void initialiseObjects(){
-  currectDifficulty = new Difficulty(); // Initialise the object Difficulty
+  currentDifficulty = new Difficulty(); // Initialise from the object Difficulty
+  currentSensorsData = new SensorsData(); // Initialise from the object SensorsData
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////  FUNCTIONS  ABOUT  SENSORS'  DATA  //////////////////////////////////////////////////////
+class SensorsData{
+  float heartRate;
+  float oxygenSaturation;
+  float bodyTemperature;
+  float perspiration;
+  float bodyAcceleration;
+  boolean isSocked;
+  
+  SensorsData(){  //Initialization
+    this.heartRate = 80;             // testing value
+    this.oxygenSaturation = 99;      // testing value
+    this.bodyTemperature = 36.4;     // testing value
+    this.perspiration = 42;          // testing value
+    bodyAcceleration = 0.2;          // testing value
+    isSocked = true;                 // testing value
+  }
+  
+  void updateHeartRate(float val){
+  }
+  
+  void updateOxygenSaturation(float val){
+  }
+  
+  void updateBodyTemperature(float val){
+  }
+  
+  void updatePerspiration(float val){
+  }
+  
+  void updateBodyAcceleration(float val){
+  }
+  
+  void updateIsSocked(boolean val){
+  }
+  
+  private Map<String, String> collectAllSensorsData(){  // To collect all Sensors' data in a Dictionary and prepare them
+    Map<String, String> dataDict = new HashMap<String, String>();
+    dataDict.put("HRM", Float.toString(this.heartRate));
+    dataDict.put("O2", Float.toString(this.oxygenSaturation));
+    dataDict.put("BT", Float.toString(this.bodyTemperature));
+    dataDict.put("Per", Float.toString(this.perspiration));
+    dataDict.put("SCK", Boolean.toString(this.isSocked));
+    return dataDict;
+  }
+  String allSensorsDataToString(){  // Return All Sensors' Data as a String format
+    return collectAllSensorsData().toString();
+  }
+  
+}
+
+SensorsData currentSensorsData; // Setting the variable that is gonna contain the Sensors' Data
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////  FUNCTIONS FOR  THE  PONG  GAME  ////////////////////////////////////////////////////////
@@ -124,8 +185,8 @@ boolean hitPad(){
 void ballReset(){
   ballX=random(width/3, 2/3*width);
   ballY=random(height/3, 2/3*height);
-  velocity[0]=4*random(-5, 5);
-  velocity[1]=3*random(-5, 5);
+  velocity[0]=random(-5,5)*(1+currentDifficulty.ballAcceleration);
+  velocity[1]=random(-3,3)*(1+currentDifficulty.ballAcceleration);
 }
 
 ////////////////////////////////////////////////////////  SCORING 
@@ -145,8 +206,8 @@ void scorePadHits() {
 void setup() {
   size(1111, 666);
   background(0);
-  colorMode(HSB);
-  frameRate(30);
+  colorMode(RGB);
+  frameRate(framerate);
   smooth();
   ///////////////////////////////////// Starting the initialisation
   initialiseObjects();
@@ -163,11 +224,11 @@ void draw() {
   
   
   if(hitPad()){
-    velocity[0] += Math.signum(velocity[0]) * currectDifficulty.ballAcceleration; //Increase the speed!
+    velocity[0] += Math.signum(velocity[0]) * currentDifficulty.ballAcceleration; //Increase the speed!
     velocity[0] *= -1; //Change the horizontial direction of the ball
   }
   if (hitWall()){
-    velocity[1] += Math.signum(velocity[1]) * currectDifficulty.ballAcceleration; //Increase the speed!
+    velocity[1] += Math.signum(velocity[1]) * currentDifficulty.ballAcceleration; //Increase the speed!
     velocity[1] *= -1; //Change the vertical direction of the ball
   }
   
@@ -179,8 +240,11 @@ void draw() {
   
   scoring();
  
+  textSize(49);
   text(hits, 40, 40);
-  textSize(50);
   text(score, width-80, 40);
+  textSize(18);
+  // Note for later: The textAscent() is returning the current textSize
+  text(currentSensorsData.allSensorsDataToString(),width*1/4,20);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 import processing.serial.*;
 import java.util.Map;
 
+// TODO: Clean up the Mess in the end!
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////  i want to make the code as much portable as i think i can
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -14,36 +16,47 @@ int hits=0;
 int score=0;
 int framerate=30;
 
-int heartBeatRate=80;
-
 ////////////////////////////////////////////////////////////  INPUT  FROM  THE  ARDUINO  /////////////////////////////////////////////////////////
-Serial myPort;  // Create object from Serial Class
-String portName;  // The port that the Arduino is connected to
 
-//Well... Java... crap! no default values to arguments! ...so let's do some Overloading...
-void connectToArduino(){
-  for (int i=0; i<Serial.list().length; i++ ){//Check ALL the Serial Ports to find where the Arduino is connected.
-    setListeningPort(i);
-    if (getPortData() != "NA"){// TODO:  I have to provide via arduino a special phrase in order to recognise it.
-      break;
+// TODO: Populate this Section!
+class ArduinoConnection{
+  Serial myPort;  // Create object from Serial Class
+  String portName;  // The port that the Arduino is connected to
+  PApplet paplet;  // This is gonna be the "PApplet pong_processing.this" for the Serial Constructor
+  int baudRate;  // The Baud Rate that is the same as the Arduino's, for proper communication.
+  
+  ArduinoConnection(PApplet paplet){  // Constructor. I have to pass as argument the "this" in order to get the "PApplet pong_processing.this" for the Serial Constructor
+    this.paplet = paplet;
+  }
+  
+  //Well... Java... crap! no default values to arguments! ...so let's do some Overloading...
+  void connectToArduino(){
+    for (int i=0; i<Serial.list().length; i++ ){//Check ALL the Serial Ports to find where the Arduino is connected.
+      setListeningPort(i);
+      if (getPortData() != "NA"){// TODO:  I have to provide via arduino a special phrase in order to recognise it.
+        break;
+      }
     }
   }
-}
-void connectToArduino(int arduinoPort){//The Arduino port is being provided (so no loop for searching for it!)
-  setListeningPort(arduinoPort);
-}
-
-void setListeningPort(int portNum) {
-  portName = Serial.list()[portNum];
-  myPort = new Serial(this, portName, 9600);
-}
-
-String getPortData(){
-  if ( myPort.available() > 0){  // If data is available,
-    return myPort.readStringUntil('\n');  // read it and return it
+  void connectToArduino(int arduinoPort){//The Arduino port is being provided (so no loop for searching for it!)
+    setListeningPort(arduinoPort);
   }
-  return "NA";  // Return NA if the serial in empty
+  
+  void setListeningPort(int portNum) {
+    this.portName = Serial.list()[portNum];
+    this.myPort = new Serial(this.paplet, portName, this.baudRate);
+    //myPort = new Serial(pong_processing.this, portName, this.baudRate); //Working Alternative in case of messing up the "paplet" variable above
+  }
+  
+  String getPortData(){
+    if ( this.myPort.available() > 0){  // If data is available,
+      return this.myPort.readStringUntil('\n');  // read it and return it
+    }
+    return "NA";  // Return NA if the serial in empty
+  }
 }
+
+ArduinoConnection currentArduinoConnection; // Setting the variable that is gonna contain the Arduino Connection's Settings
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////  CHANGE  DIFFICULTY  //////////////////////////////////////////////////////////////////
@@ -74,11 +87,12 @@ Difficulty currentDifficulty; // Setting the variable that is gonna contain the 
 void initialiseObjects(){
   currentDifficulty = new Difficulty(); // Initialise from the object Difficulty
   currentSensorsData = new SensorsData(); // Initialise from the object SensorsData
+  currentArduinoConnection = new ArduinoConnection(this); // Initialise from the object ArduinoConnection, i am passing the "PApplet pong_processing.this" for the Serial constructor inside
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////  FUNCTIONS  ABOUT  SENSORS'  DATA  //////////////////////////////////////////////////////
-class SensorsData{
+class SensorsData{  // TODO: Populate
   float heartRate;
   float oxygenSaturation;
   float bodyTemperature;
@@ -95,22 +109,31 @@ class SensorsData{
     isSocked = true;                 // testing value
   }
   
-  void updateHeartRate(float val){
+  void updateHeartRate(){  // Read data from Arduino cia Serial
   }
   
-  void updateOxygenSaturation(float val){
+  void updateOxygenSaturation(){  // Read data from Arduino cia Serial
   }
   
-  void updateBodyTemperature(float val){
+  void updateBodyTemperature(){  // Read data from Arduino cia Serial
   }
   
-  void updatePerspiration(float val){
+  void updatePerspiration(){  // Read data from Arduino cia Serial
   }
   
-  void updateBodyAcceleration(float val){
+  void updateBodyAcceleration(){  // Read data from Arduino cia Serial
   }
   
-  void updateIsSocked(boolean val){
+  void updateIsSocked(){  // Read data from Arduino cia Serial
+  }
+  
+  void updateAll(){
+    updateHeartRate();
+    updateOxygenSaturation();
+    updateBodyTemperature();
+    updatePerspiration();
+    updateBodyAcceleration();
+    updateIsSocked();
   }
   
   private Map<String, String> collectAllSensorsData(){  // To collect all Sensors' data in a Dictionary and prepare them

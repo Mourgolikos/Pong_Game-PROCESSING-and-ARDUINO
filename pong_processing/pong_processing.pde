@@ -1,12 +1,8 @@
 import processing.serial.*;
 
-void setup() {
-  size(1111, 666);
-  background(0);
-  colorMode(HSB);
-  frameRate(30);
-  smooth();
-}
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////  i want to make the code as much portable as i think i can
+///////////////////////////////////////////////////////////////////////////////////////
  
 float ballX=random(300, 500);
 float ballY=random(200, 300);
@@ -16,12 +12,11 @@ int ballRadious=22;
 int hits=0;
 int score=0;
 
-
 ////////////////////////////////////////////////////////////  INPUT  FROM  THE  ARDUINO  /////////////////////////////////////////////////////////
-Serial myPort;  // Create object from Serial class
+Serial myPort;  // Create object from Serial Class
 String portName;  // The port that the Arduino is connected to
 
-//Well... Java... crap! not default values to arguments! ...so let's do some Overloading...
+//Well... Java... crap! no default values to arguments! ...so let's do some Overloading...
 void connectToArduino(){
   for (int i=0; i<Serial.list().length; i++ ){//Check ALL the Serial Ports to find where the Arduino is connected.
     setListeningPort(i);
@@ -30,7 +25,7 @@ void connectToArduino(){
     }
   }
 }
-void connectToArduino(int arduinoPort){//The Arduino port is being provided (so not loop for searching it!)
+void connectToArduino(int arduinoPort){//The Arduino port is being provided (so no loop for searching for it!)
   setListeningPort(arduinoPort);
 }
 
@@ -47,12 +42,36 @@ String getPortData(){
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////  CHANGE  DIFFICULTY  //////////////////////////////////////////////////////////////////
 
-float acceleration(){ //Crazy maths for the estimation of the acceleration! Yeah!
-  return random(1,2)/random(2,3);
+// TODO: Populate this Section!
+class Difficulty{
+  color ballColor;
+  float ballAcceleration;
+  
+  Difficulty(){  //Initialization
+    ballColor = color(255,255,255);
+    ballAcceleration = random(1,2)/random(2,3);//Crazy maths for the estimation of the acceleration! Yeah!
+  }
+  
+  void Increase(){  // Increase Difficulty level
+  }
+  void Decrease(){  // Decrease Difficulty level
+  }
+  
 }
 
-//Collision Check Ball-Wall(top or bot)
+Difficulty currectDifficulty; // Setting the variable that is gonna contain the Difficulty Settings
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////  FUNCTIONS  FOR  INITIALISATION  ///////////////////////////////////////////////////////
+void initialiseObjects(){
+  currectDifficulty = new Difficulty(); // Initialise the object Difficulty
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////  FUNCTIONS FOR  THE  PONG  GAME  ////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////  Collision Check Ball-Wall(top or bot)
 boolean hitTopWall(){
   if (ballY>=height-ballRadious && velocity[1]>=0){
     return true;      
@@ -69,7 +88,7 @@ boolean hitWall(){
   return hitTopWall() || hitBotWall();
 }
 
-//Collision Check Ball-Pad 
+////////////////////////////////////////////////////////  Collision Check Ball-Pad 
 boolean hitLeftPad(){
   if (ballRadious/2<=ballX && ballX<=ballRadious+padDimensions[0] && mouseY-padDimensions[1]-sqrt(2)/2*ballRadious<=ballY && ballY<=mouseY+padDimensions[1]+sqrt(2)/2*ballRadious && velocity[0]<=0){
     scorePadHits();
@@ -88,8 +107,8 @@ boolean hitPad(){
   return hitLeftPad() || hitRightPad();
 }
 
-//Restarting the Game
-//Reseting the Ball
+////////////////////////////////////////////////////////  Restarting the Game
+////////////////////////////////////  Reseting the Ball
 void ballReset(){
   ballX=random(width/3, 2/3*width);
   ballY=random(height/3, 2/3*height);
@@ -97,7 +116,7 @@ void ballReset(){
   velocity[1]=3*random(-5, 5);
 }
 
-//Scoring
+////////////////////////////////////////////////////////  SCORING 
 void scoring(){
   if (ballX>width+ballRadious*2 || ballX<-ballRadious*2){
     score = max(score,hits);
@@ -108,7 +127,20 @@ void scoring(){
 void scorePadHits() {
   hits++;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////  SETUP  ROUTINE  ///////////////////////////////////////////////////////////////////////////
+void setup() {
+  size(1111, 666);
+  background(0);
+  colorMode(HSB);
+  frameRate(30);
+  smooth();
+  ///////////////////////////////////// Starting the initialisation
+  initialiseObjects();
+}
+
+/////////////////////////////////////////////////////////  DRAW  ROUTINE ////////////////////////////////////////////////////////////////////////////
 void draw() {
   background(0);
   rect(width-padDimensions[0], mouseY-padDimensions[1], padDimensions[0], 2*padDimensions[1]);
@@ -119,11 +151,11 @@ void draw() {
   
   
   if(hitPad()){
-    velocity[0] += Math.signum(velocity[0]) * acceleration(); //Increase the speed!
+    velocity[0] += Math.signum(velocity[0]) * currectDifficulty.ballAcceleration; //Increase the speed!
     velocity[0] *= -1; //Change the horizontial direction of the ball
   }
   if (hitWall()){
-    velocity[1] += Math.signum(velocity[1]) * acceleration(); //Increase the speed!
+    velocity[1] += Math.signum(velocity[1]) * currectDifficulty.ballAcceleration; //Increase the speed!
     velocity[1] *= -1; //Change the vertical direction of the ball
   }
   
@@ -139,3 +171,4 @@ void draw() {
   textSize(50);
   text(score, width-80, 40);
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,16 @@
+Playing the game:
+	HeartBeat
+		on SLOW (velocity about 4, negligible acceleration)
+			heart beat rate was between 79bpm and 83bpm. When distracted (boredom) and getting back to game, HeartBeat jumped up to 86bpm.
+		on MEDIUM (velocity about 14, negligible acceleration)
+			heart beat rate was between 81 and 84bpm.
+		on FAST (velocity about 34, negligible acceleration)
+			heart beat rate was around 86bpm.
+
+
+
+
+NOTES:
+!! test was run only once for a few minutes just for a quick estimation.
+!! velocity has speed of pixel per frame.
+!! the accurary of the first Heart Rate Monitor (Contec CMS50C) is at +-2% or +-2bpm (the biggest one).
